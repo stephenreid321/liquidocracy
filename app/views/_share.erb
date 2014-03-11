@@ -1,0 +1,31 @@
+
+<style>
+  .share-count { font-family: arial,sans-serif; font-size: 12px; background-color: #FFFFFF; border: 1px solid #CDD5E5; height: 14px; margin-left: 3px; padding: 1px 2px; position: relative; }
+  .share-count i, .share-count u { border-color: transparent #ccc transparent transparent; border-style: solid; border-width: 4px 5px 4px 0; display: block; height: 1px; position: absolute; top: 4px; left: -5px; }
+  .share-count i { border-right-color: white; left: -3px; z-index: 1; }
+</style>
+
+<div class="share-buttons" style="margin: 10px 0">
+  
+  <a id="facebook-share-<%=key%>" class="popup" href="http://www.facebook.com/sharer/sharer.php?u=<%=CGI::escape(url)%>"><img src="/images/share/facebook.png" /></a>
+  <span id="facebook-share-count-<%=key%>" class="share-count"><i></i><u></u></span>
+  <script>
+    $(function() {
+      $.getJSON('http://graph.facebook.com/?ids=<%=CGI::escape(url)%>', function(data) {
+        $('#facebook-share-count-<%=key%>').append(data['<%=url%>']['shares'] || 0);
+      });
+    });
+  </script>
+
+  <a id="twitter-share-<%=key%>" class="popup" href="http://twitter.com/intent/tweet?<%=[:url,:via,:text,:in_reply_to,:hashtags,:related].map { |x| begin "#{x}=#{CGI::escape(eval(x.to_s))}" rescue nil; end }.compact.join('&') %>"><img src="/images/share/twitter.png" /></a>
+  <span id="twitter-share-count-<%=key%>" class="share-count"><i></i><u></u></span>  
+  <script>
+    $(function() {
+      $.getJSON("http://urls.api.twitter.com/1/urls/count.json?url=<%=CGI::escape(url)%>+&callback=?", function(data) {
+        $('#twitter-share-count-<%=key%>').append('<a style="color:black" target="_blank" href="http://twitter.com/search?q=<%=CGI::escape(url)%>">'+data['count']+'</a>');
+      });
+    });
+  </script>
+
+</div>
+

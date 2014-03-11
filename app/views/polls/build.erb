@@ -1,0 +1,90 @@
+
+<% form_for @poll, (@poll.new_record? ? url_for(:polls_new) : url_for(:polls_edit, id: @poll.id)), :class => 'form-horizontal' do |f| %>
+  <%= f.text_block :question %>
+
+  <style>
+    .option > input { width: 70%; display: inline-block; margin-bottom: 0.25em }
+  </style>
+  <div class="form-group <%= 'has-error' if !f.error_message_on(:options).blank? %>">
+    <label class="control-label col-md-3">Possible answers</label>
+    <div class="col-md-6">             
+      <div id="options">
+        <% f.fields_for :options do |o| %>
+          <div class="option">
+            <%= o.text_field :text, :class => 'form-control' %>
+            <% unless o.object.new_record? %>
+              <span>
+                <i style="cursor: pointer" onclick="$(this).siblings().last().prop('checked', true).closest('.option').hide()" class="fa fa-times"></i>
+                <%= o.check_box '_destroy', :style => 'display: none' %>
+              </span>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      <script>
+        $(function() {
+          var icon = $('<i style="cursor: pointer" class="fa fa-plus"></i>');
+          $(icon).click(function() {
+            var c = $('.option').length
+            var i = $('<input class="form-control" type="text" />');
+            i.attr('name', 'poll[options_attributes][' + c + '][text]');
+            i.attr('id', 'poll_options_attributes_' + c + '_text');
+            var d = $('<div class="option"/>');
+            i.appendTo(d);
+            d.appendTo('#options');
+            i.focus();
+          });
+          icon.insertAfter('#options');
+        });
+      </script>
+    </div>
+  </div>  
+
+  <%= f.text_area_block :details, rows: 5 %>
+  
+  <style>
+    .tagship > input { width: 40%; display: inline-block; margin-bottom: 0.25em }
+  </style>
+  <div class="form-group <%= 'has-error' if !f.error_message_on(:tagships).blank? %>">
+    <label class="control-label col-md-3">Tags</label>
+    <div class="col-md-6">             
+      <div id="tagships">
+        <% f.fields_for :tagships do |o| %>
+          <div class="tagship">
+            <%= o.text_field :name, :class => 'form-control', :placeholder => 'Tag (without the #)' %>
+            <% unless o.object.new_record? %>
+              <span>
+                <i style="cursor: pointer" onclick="$(this).siblings().last().prop('checked', true).closest('.tagship').hide()" class="fa fa-times"></i>
+                <%= o.check_box '_destroy', :style => 'display: none' %>
+              </span>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      <script>
+        $(function() {
+          var icon = $('<i style="cursor: pointer" class="fa fa-plus"></i>');
+          $(icon).click(function() {
+            var c = $('.tagship').length
+            var i = $('<input class="form-control" type="text" />');
+            i.attr('name', 'poll[tagships_attributes][' + c + '][name]');
+            i.attr('id', 'poll_tagships_attributes_' + c + '_name');
+            i.attr('placeholder', 'Tag (without the #)');
+            var d = $('<div class="tagship"/>');
+            i.appendTo(d);
+            d.appendTo('#tagships');
+            i.focus();
+          });
+          icon.insertAfter('#tagships');
+        });
+      </script>
+    </div>
+  </div>   
+  
+  <%= f.datetime_block :closes %>
+  
+  <%= f.check_box_block :restricted %>
+
+  <%= f.submit_block %>
+
+<% end %>    

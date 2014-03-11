@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title><% if @title %><%=@title%> · <% end%>Liquidocracy</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Lilita+One' rel='stylesheet' type='text/css'>    
+
+    <%
+    [
+      'flatly.min.css',
+      'font-awesome.min.css',
+      'bootstrap-wysihtml5-0.0.3.css'    
+      ].each { |file| %> 
+      <link rel="stylesheet" href="/stylesheets/<%=file%>" />    
+    <% } %>
+
+    <% [
+      'jquery-1.10.2.min.js',
+      'bootstrap.min.js',
+      'wysihtml5-0.3.0.js',
+      'bootstrap-wysihtml5-0.0.3.js',
+      'jquery.deparam.js',
+      'jquery.confirm.js',
+      'jquery.popupWindow.js',
+      'jquery.fitvids.js'
+      ].each { |file| %>
+      <script src="/javascripts/<%=file%>"></script>
+    <% } %>
+
+    <script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
+
+    <%= favicon_tag 'favicon.png' %>
+
+    <meta name="description" content="<%=Fragment.find_by(slug: 'description').try(:body)%>">
+    <meta property="og:image" content="http://<%=ENV['DOMAIN']%>/images/og.png" />     
+
+    <style>
+      body { padding: 80px 20px; }
+      .restore-opacity { opacity: 0.5; }
+      .restore-opacity:hover { opacity: 1 !important  }
+      a.edit { color: black; text-decoration: none; opacity: 0.25 }
+      a.edit:hover { opacity: 1 }
+      select[name*=day], select[name*=month], select[name*=year], select[name*=hour], select[name*=min] { display:inline; width: auto } 
+      table.actions td { padding: 0.5em }
+      .brandfont { font-family: 'Lilita One' }
+    </style>
+
+  </head>
+  <body>
+
+    <div style="z-index: 1040; width: 40%; margin-left: -20%; left: 50%; position: absolute; margin-top: -40px">
+      <% {:error => 'alert-danger', :warning => 'alert-warning', :notice => 'alert-info'}.each { |k,v| %>
+        <% if flash[k] %>
+          <div id="top-alert" class="fade in alert <%=v%> alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <%= flash[k] %>
+          </div>
+        <% end %>        
+      <% } %>       
+    </div>
+    <script>
+      $(function() {
+        $(".alert").alert()
+        window.setTimeout(function() {
+          $("#top-alert").alert('close');
+        }, 3000);
+      });
+    </script>
+
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-top-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand brandfont" href="<%=url(:home)%>">Liquidocracy</a>
+      </div>
+      <div class="collapse navbar-collapse navbar-top-collapse">
+        <ul class="nav navbar-nav">
+          <% if current_account %>
+            <li><a href="<%=url(:accounts_show, screen_name: current_account.screen_name)%>">My polls</a></li>
+          <% end %>          
+          <li><a href="<%=url(:polls_new)%>">Create a poll</a></li>
+          <% if current_account %>
+            <li>
+              <button onclick="if (!confirm('Heads up: checking more frequently than once a minute is likely to result in Twitter temporarily blocking you from checking.')) {
+                      e.preventDefault();
+                      e.stopped = true;
+                    } else {
+                      location.href = '<%=url(:accounts_check)%>'
+                    }" type="button" class="btn btn-default navbar-btn">Check for votes and delegations<% if current_account.last_checked %> (last checked <%=time_ago_in_words(current_account.last_checked)%> ago)<% end %></button>             
+            </li>
+          <% end %>
+        </ul>
+        <div class="navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="<%=url(:about)%>">About</a></li>
+            <% if current_account %>              
+              <li class="dropdown">
+                <a data-toggle="dropdown" class="dropdown-toggle" href="javascript:;"><%=current_account.screen_name%> <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="<%=url(:accounts_edit)%>">Edit profile</a></li>
+                  <li><a href="<%=url(:accounts_sign_out)%>">Sign out</a></li>
+                </ul>
+              </li>               
+            <% else %>                            
+              <li>
+                <a href="/auth/twitter">Sign in</a>
+              </li>                
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </nav>    
+
+    <%= yield %>
+        
+  </body>
+</html>

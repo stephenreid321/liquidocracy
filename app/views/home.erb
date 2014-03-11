@@ -1,0 +1,28 @@
+
+<h1 style="text-align: center">
+  <span class="brandfont">Liquidocracy</span>
+  is an easy way to create online polls.<br />
+  All the voting is done via Twitter.<br />
+  <small>
+    In in the spirit of
+    <a href="http://en.wikipedia.org/wiki/Delegative_democracy">liquid (or delegative) democracy</a>, voters can delegate their votes to other Twitter users.
+  </small>
+</h1>
+
+<div style="text-align: center; margin: 3em">
+  <a href="/polls/9" class="btn btn-lg btn-default">See an example poll</a>
+</div>
+
+
+<div class="row">
+  <div class="col-md-6 col-md-offset-3">
+    <h2 style="margin-top: 0; text-align: center" class="brandfont">Who's creating polls on Liquidocracy?</h2>
+
+    <% Account.all.each { |account| %>
+      <div style="float: left; margin: 6px">
+        <%= twitter_thumb(account.user_attrs, internal: true, size: 'bigger') %>
+      </div>
+    <% } %>
+
+  </div>
+</div>

@@ -1,0 +1,112 @@
+
+<div class="row">
+  <div class="col-md-8">
+
+    <h1>
+      <%=@poll.question_with_tags%>
+      <% if @poll.account == current_account %>
+        <a data-confirm="Are you sure you want to delete this poll?" style="float: right" class="btn btn-sm btn-default"href="<%=url(:polls_destroy, :id => @poll.id)%>">Delete this poll</a>
+      <% end %>    
+      <% if @poll.restricted %>
+        <i title="Only people followed by @<%=@poll.account.screen_name%> can take part in this poll" class="fa fa-lock"></i>
+      <% end %>
+    </h1>   
+    <p class="lead"><%=Rinku.auto_link(@poll.details.gsub("\n","\n<br />"))%></p>
+    <p>
+      Created by <a href="<%=url(:accounts_show, :screen_name => @poll.account.screen_name)%>">@<%= @poll.account.screen_name %></a> on <%= @poll.created_at %>
+    </p>
+    <p><%= Time.now > @poll.closes ? "Closed at #{@poll.closes}" : "Closes #{@poll.closes}" %></p>    
+
+    <style>
+      ul.poll { width: 100% }
+      ul.poll > li > h3 { }
+      ul.poll > li { }  
+      ul.poll > li > ul { padding: 0 !important }
+      ul.poll > li ul { list-style-type: none; padding-left: 20px }
+    </style>
+    <ul class="poll list-unstyled">
+      <% (@poll.votes.count > 0 ? @poll.options.sort_by(&:weight).reverse : @poll.options).each_with_index { |option, i| %>
+        <li>
+          <div style="display:inline-block; width: <%=@poll.votes.empty? ? (100.to_f/@poll.options.count).to_s+'%' : (40+(40*option.weight.to_f/@poll.weight)).to_s+'%'%>">
+            <h3 style="color: black; border-radius: 5px 5px 5px 5px; padding: 10px; background-color: <%=lighten_color(@poll.color,0.1*i)%>;">
+              <%=option.text%>
+              <small style="color: black; margin-top: 5px; float: right"><%=pluralize(option.weight, 'vote')%></small>
+            </h3>
+          </div>
+          <ul>
+            <% option.votes.each { |vote| %>
+              <li>                
+                <%=twitter_thumb(vote.tweet_attrs['user'])%> <span class="badge"><%=vote.weight%></span>
+                <%= if dt = Delegation.tree(@poll, vote.user_id); newick(dt.deep_map { |user_id| delegation = @poll.delegations.find_by(delegator: /^#{user_id}$/); %Q{<i title="#{delegation.delegator_screen_name} delegated to #{delegation.delegated_screen_name}" class="fa fa-level-up fa-flip-horizontal"></i>} + twitter_thumb(delegation.delegator_attrs) }); end %>
+              </li>
+            <% } %>
+          </ul>
+
+        </li>
+      <% } %>
+    </ul>
+
+    <% if @poll.delegations.count > 0 %>
+      <h2>Delegations</h2>
+
+      <% @poll.delegations.sort_by { |delegation| delegation.delegator }.each { |delegation| %>
+        <span style="font-size: 18px">
+          <%=twitter_thumb(delegation.delegator_attrs)%> 
+          delegated to
+          <%=twitter_thumb(delegation.delegated_attrs)%>
+        </span>        
+        <br />
+      <% } %>     
+    <% end %>
+
+  </div>
+
+  <div class="col-md-4" style="background: #eee"> 
+
+    <script>
+      $(function() {
+        $.getJSON('http://api.twitter.com/1/statuses/oembed.json?callback=?&id=<%=@poll.tweet_attrs['id']%>', function(data) {
+          $('#tweet').html(data.html);
+        });
+      });
+    </script>    
+    <div id="tweet"></div>
+
+    <script>
+      $(function() {
+
+        $('table.actions tr td:last-child').each(function() {
+          $(this).html('<a href="http://twitter.com/intent/tweet?in_reply_to=<%=@poll.tweet_attrs['id']%>&text=' + encodeURIComponent($(this).text()) + '">' + $(this).text() + '</a>');
+        });
+
+      });
+    </script>
+    <table class="actions">
+      <thead>
+      <th>To&hellip;</th>
+      <th>Reply to the tweet above with&hellip;</th>
+      </thead>
+      <tbody>
+        <% @poll.options.each { |option| %>
+          <tr>
+            <td>Vote for <%=option.text%></td>
+            <td>vote for <%=option.slug%></td>
+          </tr>          
+        <% } %>
+        <tr>
+          <td>Remove your vote</td>
+          <td>remove vote</td>
+        </tr>
+        <tr>
+          <td>Delegate your vote</td>
+          <td>delegate to @{twitter username}</td>
+        </tr>
+        <tr>
+          <td>Stop delegating</td>
+          <td>stop delegating</td>
+        </tr>          
+      </tbody>
+    </table>
+
+  </div>  
+</div>

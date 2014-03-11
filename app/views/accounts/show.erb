@@ -1,0 +1,114 @@
+
+<div class="row">
+  <div class="col-md-3" style="text-align: right">     
+    <%= twitter_thumb(@account.user_attrs, size: 'original') %>
+    <h1>
+      <%=@account.name%>
+      <small>
+        @<%=@account.screen_name%>
+      </small>
+    </h1>
+
+    <% if @account.last_checked %>   
+      <p style="font-size: 13px">Last checked for votes <%=time_ago_in_words(@account.last_checked)%> ago</p>
+    <% end %>    
+
+  </div>
+  <div class="col-md-5">
+
+    <style>
+      .polls td { border: none }
+    </style>    
+
+    <% if @open_polls.count > 0 %>
+
+      <h2>Open polls</h2>
+
+      <table class="polls table">
+        <% @open_polls.each { |poll| %>
+          <tr>
+            <td>
+              <a href="<%=url(:polls_show, slug: poll.slug)%>"><%=poll.question_with_tags %></a>
+            </td>
+            <td><%= poll.closed? ? "Closed #{time_ago_in_words(poll.closes)} ago" : "Closes in #{time_ago_in_words(poll.closes)}" %></td>           
+          </tr>
+        <% }  %>
+      </table>
+
+    <% end %>
+
+    <% if @closed_polls.count > 0 %>
+
+      <h3>Closed polls</h3>
+
+      <table class="polls table">
+        <% @closed_polls.each { |poll| %>
+          <tr>
+            <td>
+              <a href="<%=url(:polls_show, slug: poll.slug)%>"><%=poll.question_with_tags %></a>
+            </td>
+            <td><%= poll.closed? ? "Closed #{time_ago_in_words(poll.closes)} ago" : "Closes in #{time_ago_in_words(poll.closes)}" %></td>
+          </tr>
+        <% }  %>
+      </table>    
+
+    <% end %>
+
+    <% if @account.nominations.count > 0 %>
+      <h2>Standing delegations</h2>
+
+      <% @account.nominations.sort_by { |nomination| nomination.nominator }.each { |nomination| %>
+        <span style="font-size: 18px">
+          <%=twitter_thumb(nomination.nominator_attrs)%> 
+          delegates to
+          <%=twitter_thumb(nomination.nominated_attrs)%>
+          <% if nomination.tag %>
+            on polls tagged
+            #<%=nomination.tag.name%>
+          <% end %>
+        </span>        
+        <br />
+      <% } %>  
+
+    <% end %>
+
+  </div>
+
+  <div class="col-md-4" style="background: #eee"> 
+
+    <script>
+      $(function() {
+
+        $('table.actions tr td:last-child').each(function() {
+          $(this).html('<a href="http://twitter.com/intent/tweet?text=' + encodeURIComponent('@<%=@account.screen_name%> ' + $(this).text()) + '">' + $(this).text() + '</a>');
+        });
+
+      });
+    </script>
+    <table class="actions">
+      <thead>
+      <th>To&hellip;</th>
+      <th>Tweet @<%=@account.screen_name%> with&hellip;</th>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Delegate your vote in all new polls created by @<%=@account.screen_name%></td>
+          <td>delegate all to @{twitter username}</td>
+        </tr>
+        <tr>
+          <td>Delegate your vote in all new polls tagged #{tag}</td>
+          <td>delegate #{tag} to @{twitter username}</td>
+        </tr>        
+        <tr>
+          <td>Stop delegating</td>
+          <td>stop delegating</td>
+        </tr>          
+        <tr>
+          <td>Stop delegating polls tagged #{tag}</td>
+          <td>stop delegating #{tag}</td>
+        </tr>                  
+      </tbody>
+    </table>
+    
+  </div>
+</div>
