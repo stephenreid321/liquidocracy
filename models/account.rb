@@ -79,12 +79,12 @@ class Account
     #    end
     x.reverse!
     x.each { |tweet|
-      puts tweet.text
+      # puts tweet.text
       if tweet.in_reply_to_status_id
         if poll = polls.find_by(status_id: tweet.in_reply_to_status_id)
           if !poll.restricted or (poll.restricted and api.friendship?(user_id.to_i,tweet.user.id))
             if (match = tweet.text.match(/vote for (.+)/))
-              puts match
+              # puts match
               option = poll.options.find_by(slug: match.to_a[1])
               if option
                 poll.delegations.find_by(:delegator => /^#{tweet.user.id}$/i).try(:destroy)
@@ -92,10 +92,10 @@ class Account
                 option.votes.create :user_id => tweet.user.id, :tweet_attrs => tweet.attrs
               end
             elsif (match = tweet.text.match(/remove vote/))
-              puts match
+              # puts match
               poll.votes.find_by(:user_id => /^#{tweet.user.id}$/i).try(:destroy)
             elsif (match = tweet.text.match(/delegate to @(.+)/))       
-              puts match
+              # puts match
               begin
                 delegated_user = api.user(match.to_a[1])
                 poll.delegations.find_by(:delegator => /^#{tweet.user.id}$/i).try(:destroy)
@@ -105,14 +105,14 @@ class Account
                 nil
               end
             elsif (match = tweet.text.match(/stop delegating/))
-              puts match
+              # puts match
               poll.delegations.find_by(:delegator => /^#{tweet.user.id}$/i).try(:destroy)
             end
           end
         end
       else
         if (match = tweet.text.match(/delegate #(.+) to @(.+)/))   
-          puts match
+          # puts match
           begin            
             nominated_user = api.user(match.to_a[2])
             tag = Tag.find_or_create_by(name: match.to_a[1])            
@@ -122,11 +122,11 @@ class Account
             nil
           end          
         elsif (match = tweet.text.match(/stop delegating #(.+)/))
-          puts match
+          # puts match
           tag = Tag.find_or_create_by(name: match.to_a[1])
           nominations.find_by(:nominator => /^#{tweet.user.id}$/i, :tag => tag).try(:destroy)
         elsif (match = tweet.text.match(/delegate all to @(.+)/))
-          puts match
+          # puts match
           begin
             nominated_user = api.user(match.to_a[1])
             nominations.find_by(:nominator => /^#{tweet.user.id}$/i).try(:destroy)            
@@ -135,7 +135,7 @@ class Account
             nil
           end           
         elsif (match = tweet.text.match(/stop delegating/))
-          puts match
+          # puts match
           nominations.find_by(:nominator => /^#{tweet.user.id}$/i).try(:destroy)          
         end
       end
