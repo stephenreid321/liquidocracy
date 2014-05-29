@@ -64,14 +64,14 @@ class Account
   end
 
   def check
-    if most_recent_tweet_id and most_recent_but_one_tweet_id
-      x = api.mentions(count: 200, since_id: most_recent_but_one_tweet_id)
-      until x.map(&:id).include?(most_recent_tweet_id)
-        x = x + api.mentions(count: 200, max_id: x.last.id, since_id: most_recent_but_one_tweet_id)
-      end
-    else
-      x = api.mentions(count: 200)
-    end
+    #    if most_recent_tweet_id and most_recent_but_one_tweet_id
+    #      x = api.mentions(count: 200, since_id: most_recent_but_one_tweet_id)
+    #      until x.map(&:id).include?(most_recent_tweet_id)
+    #        x = x + api.mentions(count: 200, max_id: x.last.id, since_id: most_recent_but_one_tweet_id)
+    #      end
+    #    else
+    x = api.mentions(count: 200)
+    #    end
     x.reverse!
     x.each { |tweet|
       puts tweet.text
