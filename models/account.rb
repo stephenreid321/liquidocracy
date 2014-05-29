@@ -64,6 +64,7 @@ class Account
   end
 
   def check
+    # TODO: get all tweets since last considered - guess would have to be done using a worker process and sleep()?
     #    if most_recent_tweet_id and most_recent_but_one_tweet_id
     #      x = api.mentions(count: 200, since_id: most_recent_but_one_tweet_id)
     #      until x.map(&:id).include?(most_recent_tweet_id)
