@@ -70,7 +70,11 @@ class Account
     #        x = x + api.mentions(count: 200, max_id: x.last.id, since_id: most_recent_but_one_tweet_id)
     #      end
     #    else
-    x = api.mentions(count: 200)
+    begin
+      x = api.mentions(count: 200)
+    rescue
+      return nil
+    end
     #    end
     x.reverse!
     x.each { |tweet|
